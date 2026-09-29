@@ -1,0 +1,233 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Profile data for an authenticated user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 255 },
+        "photoURL": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["userId", "displayName", "email", "createdAt"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "A multi-turn conversation thread.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "personalityTone": { "type": "string", "maxLength": 50 },
+        "model": { "type": "string", "maxLength": 60 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "userId", "title", "createdAt", "updatedAt"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A single message within a conversation thread.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "conversationId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["user", "assistant", "system"] },
+        "content": { "type": "string", "maxLength": 20000 },
+        "model": { "type": "string", "maxLength": 60 },
+        "timestamp": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "conversationId", "userId", "role", "content", "timestamp"]
+    },
+    "ConversationLog": {
+      "title": "ConversationLog",
+      "description": "Server-audited user and AI conversation turn for quality inspection, safety review, and error monitoring.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 100 },
+        "conversationId": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string", "maxLength": 50 },
+        "userMessage": { "type": "string", "maxLength": 25000 },
+        "aiResponse": { "type": "string", "maxLength": 25000 },
+        "model": { "type": "string", "maxLength": 60 },
+        "status": { "type": "string", "enum": ["success", "error", "safety_refusal", "fallback", "retried"] },
+        "errorDetails": { "type": "string", "maxLength": 1000 },
+        "device": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["id", "userId", "conversationId", "timestamp", "userMessage", "aiResponse", "model", "status"]
+    },
+    "AdminAuditLog": {
+      "title": "AdminAuditLog",
+      "description": "Log of actions performed by authorized administrators in the admin dashboard.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "adminEmail": { "type": "string", "maxLength": 255 },
+        "adminUid": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 100 },
+        "details": { "type": "string", "maxLength": 1000 },
+        "timestamp": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "adminEmail", "adminUid", "action", "timestamp"]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized administrator registry document.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 255 },
+        "role": { "type": "string", "enum": ["admin"] },
+        "addedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "ApprovedDocument": {
+      "title": "ApprovedDocument",
+      "description": "Curated library of approved documents and PDFs available to users.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 255 },
+        "fileName": { "type": "string", "maxLength": 255 },
+        "fileSize": { "type": "string", "maxLength": 50 },
+        "category": { "type": "string", "maxLength": 100 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "isApproved": { "type": "boolean" },
+        "isPublic": { "type": "boolean" },
+        "downloadUrl": { "type": "string", "maxLength": 2048 },
+        "previewText": { "type": "string", "maxLength": 5000 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "title", "fileName", "isApproved"]
+    },
+    "DocumentRequest": {
+      "title": "DocumentRequest",
+      "description": "User request for a document or PDF from the administrator.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 255 },
+        "userEmail": { "type": "string", "maxLength": 255 },
+        "documentName": { "type": "string", "maxLength": 255 },
+        "documentDescription": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["PENDING", "pending", "approved", "rejected"] },
+        "requestedAt": { "type": "string", "maxLength": 50 },
+        "reviewedAt": { "type": "string", "maxLength": 50 },
+        "adminNotes": { "type": "string", "maxLength": 1000 },
+        "adminResponse": { "type": "string", "maxLength": 1000 },
+        "documentId": { "type": "string", "maxLength": 128 },
+        "approvedDocumentId": { "type": "string", "maxLength": 128 },
+        "approvedDocumentTitle": { "type": "string", "maxLength": 255 },
+        "approvedDocumentUrl": { "type": "string", "maxLength": 2048 }
+      },
+      "required": ["id", "userId", "documentName", "status", "requestedAt"]
+    },
+    "UserNotification": {
+      "title": "UserNotification",
+      "description": "User account notification for requests, approvals, rejections, announcements, and security.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "enum": ["new_document_request", "request_approved", "request_rejected", "announcement", "account_notification"] },
+        "title": { "type": "string", "maxLength": 255 },
+        "message": { "type": "string", "maxLength": 2000 },
+        "timestamp": { "type": "string", "maxLength": 50 },
+        "read": { "type": "boolean" },
+        "actionUrl": { "type": "string", "maxLength": 1024 },
+        "requestId": { "type": "string", "maxLength": 128 },
+        "documentName": { "type": "string", "maxLength": 255 }
+      },
+      "required": ["id", "userId", "type", "title", "message", "timestamp", "read"]
+    },
+    "AdminNotification": {
+      "title": "AdminNotification",
+      "description": "Administrator alerts for incoming PDF requests and critical system events.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "maxLength": 50 },
+        "title": { "type": "string", "maxLength": 255 },
+        "message": { "type": "string", "maxLength": 2000 },
+        "timestamp": { "type": "string", "maxLength": 50 },
+        "read": { "type": "boolean" },
+        "requestId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 255 },
+        "documentName": { "type": "string", "maxLength": 255 },
+        "actionUrl": { "type": "string", "maxLength": 1024 }
+      },
+      "required": ["id", "type", "title", "message", "timestamp", "read"]
+    },
+    "DirectMessage": {
+      "title": "DirectMessage",
+      "description": "Future-ready architecture for direct messaging between user and assistant/admin.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "sender": { "type": "string", "enum": ["user", "admin", "assistant"] },
+        "message": { "type": "string", "maxLength": 4000 },
+        "timestamp": { "type": "string", "maxLength": 50 },
+        "channel": { "type": "string", "enum": ["in_app", "whatsapp_cloud_api", "telegram_bot", "twilio_sms"] },
+        "read": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "sender", "message", "timestamp", "channel"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document for authenticated users."
+    },
+    "/users/{userId}/conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "Conversations stored under the authenticated user."
+    },
+    "/users/{userId}/conversations/{conversationId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Chat messages stored in a conversation sub-collection."
+    },
+    "/users/{userId}/notifications/{notificationId}": {
+      "schema": "UserNotification",
+      "description": "Notifications directed to a specific user."
+    },
+    "/users/{userId}/direct_messages/{messageId}": {
+      "schema": "DirectMessage",
+      "description": "Direct communication thread for the authenticated user."
+    },
+    "/approved_documents/{docId}": {
+      "schema": "ApprovedDocument",
+      "description": "Curated library of approved documents and PDFs."
+    },
+    "/document_requests/{requestId}": {
+      "schema": "DocumentRequest",
+      "description": "User requests for documents submitted to administrator."
+    },
+    "/admin_notifications/{notificationId}": {
+      "schema": "AdminNotification",
+      "description": "Administrator alerts and document request action items."
+    },
+    "/conversation_logs/{logId}": {
+      "schema": "ConversationLog",
+      "description": "Audited conversation logs between users and the AI assistant, accessible only by verified administrators."
+    },
+    "/admin_audit_logs/{auditId}": {
+      "schema": "AdminAuditLog",
+      "description": "Audit trails for administrator dashboard operations."
+    },
+    "/admins/{adminId}": {
+      "schema": "AdminUser",
+      "description": "Authorized admin users registry."
+    }
+  }
+}

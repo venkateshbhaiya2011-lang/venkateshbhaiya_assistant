@@ -1,0 +1,182 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connection test document
+    match /test/{docId} {
+      allow read: if true;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Role-Based Access Control: Verified Administrator Check
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email == 'venkateshbhaiya2011@gmail.com' && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.displayName is string && data.displayName.size() <= 100 &&
+             (!('email' in data) || (data.email is string && data.email.size() <= 255)) &&
+             data.createdAt is string && data.createdAt.size() <= 50;
+    }
+
+    function isValidConversation(data, userId) {
+      return data.id is string && isValidId(data.id) &&
+             data.userId is string && data.userId == userId &&
+             data.title is string && data.title.size() <= 200 &&
+             data.createdAt is string && data.createdAt.size() <= 50 &&
+             data.updatedAt is string && data.updatedAt.size() <= 50;
+    }
+
+    function isValidChatMessage(data, userId) {
+      return data.id is string && isValidId(data.id) &&
+             data.conversationId is string && isValidId(data.conversationId) &&
+             data.userId is string && data.userId == userId &&
+             data.role in ['user', 'assistant', 'system'] &&
+             data.content is string && data.content.size() <= 25000 &&
+             data.timestamp is string && data.timestamp.size() <= 50;
+    }
+
+    function isValidConversationLog(data) {
+      return data.id is string && isValidId(data.id) &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.conversationId is string && data.conversationId.size() <= 128 &&
+             data.timestamp is string && data.timestamp.size() <= 50 &&
+             data.userMessage is string && data.userMessage.size() <= 25000 &&
+             data.aiResponse is string && data.aiResponse.size() <= 25000 &&
+             data.model is string && data.model.size() <= 60 &&
+             data.status in ['success', 'error', 'safety_refusal', 'fallback', 'retried'];
+    }
+
+    function isValidAdminAuditLog(data) {
+      return data.id is string && isValidId(data.id) &&
+             data.adminEmail is string && data.adminEmail.size() <= 255 &&
+             data.adminUid is string && data.adminUid.size() <= 128 &&
+             data.action is string && data.action.size() <= 100 &&
+             data.timestamp is string && data.timestamp.size() <= 50;
+    }
+
+    function isValidApprovedDocument(data) {
+      return data.id is string && isValidId(data.id) &&
+             data.title is string && data.title.size() <= 255 &&
+             data.fileName is string && data.fileName.size() <= 255 &&
+             data.isApproved is bool;
+    }
+
+    function isValidDocumentRequest(data) {
+      return data.id is string && isValidId(data.id) &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.documentName is string && data.documentName.size() <= 255 &&
+             data.status in ['PENDING', 'pending', 'approved', 'rejected'] &&
+             data.requestedAt is string && data.requestedAt.size() <= 50;
+    }
+
+    function isValidUserNotification(data, userId) {
+      return data.id is string && isValidId(data.id) &&
+             data.userId is string && data.userId == userId &&
+             data.type in ['new_document_request', 'request_approved', 'request_rejected', 'announcement', 'account_notification'] &&
+             data.title is string && data.title.size() <= 255 &&
+             data.message is string && data.message.size() <= 2000 &&
+             data.read is bool;
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if false; // PII isolation - no listing of user records
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfile(request.resource.data, userId);
+      allow update: if isOwner(userId) && isValidUserProfile(request.resource.data, userId);
+      allow delete: if isOwner(userId) || isAdmin();
+
+      match /conversations/{conversationId} {
+        allow get: if isOwner(userId) || isAdmin();
+        allow list: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidId(conversationId) && isValidConversation(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidConversation(request.resource.data, userId);
+        allow delete: if isOwner(userId) || isAdmin();
+
+        match /messages/{messageId} {
+          allow get: if isOwner(userId) || isAdmin();
+          allow list: if isOwner(userId) || isAdmin();
+          allow create: if isOwner(userId) && isValidId(messageId) && isValidChatMessage(request.resource.data, userId);
+          allow update: if isOwner(userId) && isValidChatMessage(request.resource.data, userId);
+          allow delete: if isOwner(userId) || isAdmin();
+        }
+      }
+
+      match /notifications/{notificationId} {
+        allow get, list: if isOwner(userId) || isAdmin();
+        allow create: if (isOwner(userId) || isAdmin()) && isValidId(notificationId) && isValidUserNotification(request.resource.data, userId);
+        allow update: if (isOwner(userId) || isAdmin()) && isValidUserNotification(request.resource.data, userId);
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+
+      match /direct_messages/{messageId} {
+        allow get, list: if isOwner(userId) || isAdmin();
+        allow create: if (isOwner(userId) || isAdmin()) && isValidId(messageId);
+        allow update: if (isOwner(userId) || isAdmin());
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // Curated Approved Document & PDF Library
+    match /approved_documents/{docId} {
+      allow get: if (resource.data.isApproved == true && resource.data.isPublic == true) || isAdmin();
+      allow list: if (resource.data.isApproved == true && resource.data.isPublic == true) || isAdmin();
+      allow create, update, delete: if isAdmin() && isValidId(docId) && isValidApprovedDocument(request.resource.data);
+    }
+
+    // Document Requests by Users to Administrator
+    match /document_requests/{requestId} {
+      allow get: if (isSignedIn() && resource.data.userId == request.auth.uid) || isAdmin();
+      allow list: if isAdmin() || (isSignedIn() && request.query.limit <= 100);
+      allow create: if isSignedIn() && isValidId(requestId) && isValidDocumentRequest(request.resource.data) && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid && (request.resource.data.status == 'pending' || request.resource.data.status == 'PENDING'));
+      allow delete: if isAdmin();
+    }
+
+    // Administrator Alerts for Document Requests
+    match /admin_notifications/{notificationId} {
+      allow read, delete: if isAdmin();
+      allow create: if (isAdmin() || isSignedIn()) && isValidId(notificationId);
+      allow update: if isAdmin();
+    }
+
+    // Server & Client Audited Conversation Logs (Exclusive Admin Read/Delete, Secure Admin/User Write)
+    match /conversation_logs/{logId} {
+      allow get, list, delete: if isAdmin();
+      allow create: if (isAdmin() || isSignedIn()) && isValidId(logId) && isValidConversationLog(request.resource.data);
+      allow update: if isAdmin() && isValidConversationLog(request.resource.data);
+    }
+
+    // Admin Audit Trail
+    match /admin_audit_logs/{auditId} {
+      allow read, delete: if isAdmin();
+      allow create: if isAdmin() && isValidId(auditId) && isValidAdminAuditLog(request.resource.data);
+      allow update: if false; // immutable audit log
+    }
+
+    // Admin Registry
+    match /admins/{adminId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

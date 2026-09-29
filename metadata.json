@@ -1,0 +1,9 @@
+{
+  "name": "VenkateshBhaiya Assistant",
+  "description": "VenkateshBhaiya Assistant is a personal AI assistant designed to provide a simple, helpful and privacy-conscious experience.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

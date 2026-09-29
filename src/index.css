@@ -1,0 +1,354 @@
+@import "tailwindcss";
+
+/* -------------------------------------------------------------
+   Liquid Glass Design System
+   VenkateshBhaiya Assistant
+   ------------------------------------------------------------- */
+
+:root {
+  --bg-primary: #09090b;
+  --bg-secondary: #121216;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --glass-bg: rgba(18, 18, 24, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-highlight: inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.7);
+  --glass-bubble-user: rgba(245, 158, 11, 0.22);
+  --glass-bubble-assistant: rgba(255, 255, 255, 0.05);
+
+  /* Accent defaults (Amber) */
+  --accent-color: #f59e0b;
+  --accent-glow: rgba(245, 158, 11, 0.35);
+  --accent-border: rgba(245, 158, 11, 0.4);
+  --accent-gradient: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(234, 88, 12, 0.9));
+}
+
+html[data-accent="emerald"] {
+  --accent-color: #10b981;
+  --accent-glow: rgba(16, 185, 129, 0.35);
+  --accent-border: rgba(16, 185, 129, 0.4);
+  --accent-gradient: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.9));
+  --glass-bubble-user: rgba(16, 185, 129, 0.22);
+}
+
+html[data-accent="violet"] {
+  --accent-color: #8b5cf6;
+  --accent-glow: rgba(139, 92, 246, 0.35);
+  --accent-border: rgba(139, 92, 246, 0.4);
+  --accent-gradient: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(124, 58, 237, 0.9));
+  --glass-bubble-user: rgba(139, 92, 246, 0.22);
+}
+
+html[data-accent="cyan"] {
+  --accent-color: #06b6d4;
+  --accent-glow: rgba(6, 182, 212, 0.35);
+  --accent-border: rgba(6, 182, 212, 0.4);
+  --accent-gradient: linear-gradient(135deg, rgba(6, 182, 212, 0.95), rgba(8, 145, 178, 0.9));
+  --glass-bubble-user: rgba(6, 182, 212, 0.22);
+}
+
+html.light {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-highlight: inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  --glass-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08);
+  --glass-bubble-user: rgba(245, 158, 11, 0.15);
+  --glass-bubble-assistant: rgba(255, 255, 255, 0.92);
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100dvh;
+}
+
+/* Global Smooth Theme Transition Trigger */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease, fill 0.35s ease !important;
+  transition-delay: 0s !important;
+}
+
+/* Realistic Liquid Glass Ambient Orbs (Hardware-accelerated CSS) */
+.liquid-ambient-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.liquid-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.55;
+  will-change: transform, opacity;
+  animation: orbFloat 20s infinite ease-in-out alternate;
+}
+
+.liquid-orb-1 {
+  width: 500px;
+  height: 500px;
+  top: -120px;
+  left: 15%;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, rgba(56, 189, 248, 0.08) 50%, transparent 70%);
+  animation-duration: 22s;
+}
+
+.liquid-orb-2 {
+  width: 600px;
+  height: 600px;
+  top: 35%;
+  right: -100px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.07) 50%, transparent 70%);
+  animation-duration: 26s;
+  animation-delay: -5s;
+}
+
+.liquid-orb-3 {
+  width: 550px;
+  height: 550px;
+  bottom: -150px;
+  left: 20%;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.14) 0%, rgba(30, 58, 138, 0.06) 50%, transparent 70%);
+  animation-duration: 24s;
+  animation-delay: -10s;
+}
+
+@keyframes orbFloat {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(40px, -30px, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-30px, 40px, 0) scale(0.95);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .liquid-orb {
+    animation: none !important;
+  }
+}
+
+/* Liquid Glass Utilities */
+.liquid-glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+
+.liquid-glass-subtle {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+
+html.light .liquid-glass-subtle {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+}
+
+.liquid-glass-button {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.35), 0 10px 25px -5px rgba(37, 99, 235, 0.35);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.75s ease;
+}
+
+.liquid-glass-button:hover::after {
+  left: 150%;
+}
+
+.liquid-glass-button:hover {
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 2px 0 rgba(255, 255, 255, 0.5), 0 15px 30px -5px rgba(37, 99, 235, 0.45);
+}
+
+.liquid-glass-button:active {
+  transform: translateY(0.5px);
+}
+
+/* Secondary frosted glass button */
+.liquid-glass-secondary-btn {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+html.light .liquid-glass-secondary-btn {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Custom Liquid Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(161, 161, 170, 0.35) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(161, 161, 170, 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(161, 161, 170, 0.65);
+}
+
+/* Touch scroll smooth */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+#chat-messages-container {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scroll-behavior: smooth;
+}
+
+#chat-messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+#chat-messages-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 9999px;
+}
+#chat-messages-container::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.4);
+  border-radius: 9999px;
+}
+#chat-messages-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.75);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Mobile Keyboard & Screen Optimization */
+.safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.liquid-glass-composer {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), var(--glass-highlight);
+}
+
+.pulse-listening {
+  animation: pulseListen 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseListen {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+/* Skeleton Loading Shimmer Keyframes */
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(245, 158, 11, 0.12) 50%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 2.2s infinite ease-in-out;
+}
+
+html.light .animate-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.04) 0%,
+    rgba(245, 158, 11, 0.16) 50%,
+    rgba(0, 0, 0, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 2.2s infinite ease-in-out;
+}
+
